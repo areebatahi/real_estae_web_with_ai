@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-charcoal-800 antialiased;
+}
+
+::selection {
+  @apply bg-emerald-200 text-charcoal-900;
+}
+
+.container-px {
+  @apply px-5 sm:px-8 lg:px-12;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-premium transition hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full border border-charcoal-200 bg-white px-6 py-3 text-sm font-semibold text-charcoal-800 transition hover:border-charcoal-400 active:scale-[0.98];
+}
+
+.btn-dark {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-charcoal-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-charcoal-800 active:scale-[0.98];
+}
+
+.card {
+  @apply rounded-2xl border border-charcoal-100 bg-white shadow-sm transition hover:shadow-premium;
+}
+
+.input-field {
+  @apply w-full rounded-xl border border-charcoal-200 bg-white px-4 py-3 text-sm text-charcoal-800 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100;
+}
+
+.label {
+  @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-500;
+}
+
+.section-heading {
+  @apply font-display text-3xl font-semibold text-charcoal-900 sm:text-4xl;
+}

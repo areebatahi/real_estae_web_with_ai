@@ -1,0 +1,486 @@
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import User from "../models/User.js";
+import Agent from "../models/Agent.js";
+import Property from "../models/Property.js";
+
+dotenv.config();
+
+const agents = [
+  {
+    name: "Ahmed Raza",
+    photo: "",
+    phone: "+923001112233",
+    whatsapp: "923001112233",
+    email: "ahmed.raza@lahoreestate.pk",
+    position: "Senior Property Consultant",
+    experience: 8,
+    bio: "Specialist in DHA and Bahria Town Lahore residential deals.",
+    isVerified: true,
+  },
+  {
+    name: "Sana Malik",
+    photo: "",
+    phone: "+923004445566",
+    whatsapp: "923004445566",
+    email: "sana.malik@lahoreestate.pk",
+    position: "Property Consultant",
+    experience: 5,
+    bio: "Focused on Gulberg and Johar Town apartments and commercial units.",
+    isVerified: true,
+  },
+  {
+    name: "Bilal Hussain",
+    photo: "",
+    phone: "+923007778899",
+    whatsapp: "923007778899",
+    email: "bilal.hussain@lahoreestate.pk",
+    position: "Senior Property Consultant",
+    experience: 10,
+    bio: "12+ years advising investors on plots across Lahore.",
+    isVerified: true,
+  },
+  {
+    name: "Hira Fatima",
+    photo: "",
+    phone: "+923009990011",
+    whatsapp: "923009990011",
+    email: "hira.fatima@lahoreestate.pk",
+    position: "Property Consultant",
+    experience: 3,
+    bio: "Helps families find the right home in Model Town and Wapda Town.",
+    isVerified: false,
+  },
+];
+
+const nearby = (school, hospital, market) => [
+  { name: school, category: "school", distanceKm: 1.2 },
+  { name: hospital, category: "hospital", distanceKm: 2.4 },
+  { name: market, category: "market", distanceKm: 0.8 },
+];
+
+const propertiesSeed = (agentIds) => [
+  {
+    title: "4 Bed Modern House in DHA Phase 6",
+    description:
+      "A beautifully designed 1 kanal house in DHA Phase 6 with a modern facade, spacious lounge, and a landscaped lawn. Ideal for a growing family looking for comfort and security.",
+    purpose: "buy",
+    propertyType: "house",
+    price: 19500000,
+    location: { area: "DHA Lahore", address: "Phase 6, Block C", city: "Lahore" },
+    coordinates: { lat: 31.4697, lng: 74.4142 },
+    area: { value: 20, unit: "Marla" },
+    bedrooms: 4,
+    bathrooms: 5,
+    parking: true,
+    furnished: "unfurnished",
+    amenities: ["Parking", "Security", "Electricity Backup", "Garden", "Servant Quarter", "CCTV"],
+    images: [
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1200",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200",
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200",
+    ],
+    nearbyPlaces: nearby("Beaconhouse DHA", "Hameed Latif DHA", "DHA Y-Block Market"),
+    agent: agentIds[0],
+    isVerified: true,
+    verificationStatus: "verified",
+    availabilityStatus: "confirmed_today",
+    availabilityConfirmedAt: new Date(),
+  },
+  {
+    title: "3 Bed Luxury Apartment in Gulberg",
+    description:
+      "A premium 3-bedroom apartment in the heart of Gulberg with skyline views, elevator access, and 24/7 security — walking distance to MM Alam Road.",
+    purpose: "rent",
+    propertyType: "apartment",
+    price: 180000,
+    rentFrequency: "monthly",
+    location: { area: "Gulberg", address: "MM Alam Road", city: "Lahore" },
+    coordinates: { lat: 31.5099, lng: 74.3436 },
+    area: { value: 2200, unit: "Sq.Ft" },
+    bedrooms: 3,
+    bathrooms: 3,
+    parking: true,
+    furnished: "furnished",
+    amenities: ["Parking", "Elevator", "Security", "CCTV", "Electricity Backup"],
+    images: [
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200",
+    ],
+    nearbyPlaces: nearby("Lahore Grammar Gulberg", "Doctors Hospital", "MM Alam Road Market"),
+    agent: agentIds[1],
+    isVerified: true,
+    verificationStatus: "verified",
+    availabilityStatus: "available",
+  },
+  {
+    title: "10 Marla Residential Plot in Bahria Town",
+    description:
+      "A prime residential plot in Bahria Town Lahore, Sector C, ready for construction with all utilities available on-site.",
+    purpose: "buy",
+    propertyType: "plot",
+    price: 8500000,
+    location: { area: "Bahria Town Lahore", address: "Sector C", city: "Lahore" },
+    coordinates: { lat: 31.3705, lng: 74.1758 },
+    area: { value: 10, unit: "Marla" },
+    bedrooms: 0,
+    bathrooms: 0,
+    parking: false,
+    furnished: "unfurnished",
+    amenities: ["Security", "Electricity Backup"],
+    images: [
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200",
+      "https://images.unsplash.com/photo-1500916434205-0c77489c6cf7?w=1200",
+    ],
+    nearbyPlaces: nearby("Bahria Town School", "Bahria International Hospital", "Bahria Town Market"),
+    agent: agentIds[2],
+    isVerified: true,
+    verificationStatus: "verified",
+    availabilityStatus: "available",
+  },
+  {
+    title: "5 Bed House in Johar Town Block G1",
+    description:
+      "A spacious double-storey house in Johar Town, close to Emporium Mall, with a large drawing room and modern kitchen.",
+    purpose: "buy",
+    propertyType: "house",
+    price: 26000000,
+    location: { area: "Johar Town", address: "Block G1", city: "Lahore" },
+    coordinates: { lat: 31.4697, lng: 74.2728 },
+    area: { value: 1, unit: "Kanal" },
+    bedrooms: 5,
+    bathrooms: 6,
+    parking: true,
+    furnished: "unfurnished",
+    amenities: ["Parking", "Security", "Garden", "Electricity Backup", "CCTV"],
+    images: [
+      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200",
+      "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1200",
+      "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1200",
+    ],
+    nearbyPlaces: nearby("LGS Johar Town", "Ittefaq Hospital", "Emporium Mall"),
+    agent: agentIds[3],
+    isVerified: false,
+    verificationStatus: "pending",
+    availabilityStatus: "pending_confirmation",
+  },
+  {
+    title: "2 Bed Furnished Apartment in Model Town",
+    description:
+      "A cozy, fully furnished 2-bedroom apartment near Model Town Park — perfect for small families or professionals.",
+    purpose: "rent",
+    propertyType: "apartment",
+    price: 95000,
+    rentFrequency: "monthly",
+    location: { area: "Model Town", address: "Block C", city: "Lahore" },
+    coordinates: { lat: 31.4805, lng: 74.3235 },
+    area: { value: 1400, unit: "Sq.Ft" },
+    bedrooms: 2,
+    bathrooms: 2,
+    parking: true,
+    furnished: "furnished",
+    amenities: ["Parking", "Balcony", "Security", "Electricity Backup"],
+    images: [
+      "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1200",
+      "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=1200",
+    ],
+    nearbyPlaces: nearby("Aitchison College", "Model Town Hospital", "Model Town Link Market"),
+    agent: agentIds[3],
+    isVerified: true,
+    verificationStatus: "verified",
+    availabilityStatus: "confirmed_today",
+    availabilityConfirmedAt: new Date(),
+  },
+  {
+    title: "Commercial Shop on Main Boulevard Gulberg",
+    description:
+      "A ground-floor commercial shop on Main Boulevard Gulberg with high foot traffic, ideal for retail or a branch office.",
+    purpose: "rent",
+    propertyType: "commercial",
+    price: 220000,
+    rentFrequency: "monthly",
+    location: { area: "Gulberg", address: "Main Boulevard", city: "Lahore" },
+    coordinates: { lat: 31.5136, lng: 74.3444 },
+    area: { value: 600, unit: "Sq.Ft" },
+    bedrooms: 0,
+    bathrooms: 1,
+    parking: false,
+    furnished: "unfurnished",
+    amenities: ["Electricity Backup", "CCTV"],
+    images: [
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200",
+      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200",
+    ],
+    nearbyPlaces: nearby("N/A", "Doctors Hospital", "Liberty Market"),
+    agent: agentIds[1],
+    isVerified: true,
+    verificationStatus: "verified",
+    availabilityStatus: "available",
+  },
+  {
+    title: "1 Kanal House in Askari 10",
+    description:
+      "A well-maintained 1 kanal house in Askari 10 with a quiet, secure environment ideal for retired officers and families.",
+    purpose: "buy",
+    propertyType: "house",
+    price: 32000000,
+    location: { area: "Askari", address: "Askari 10", city: "Lahore" },
+    coordinates: { lat: 31.4239, lng: 74.2789 },
+    area: { value: 1, unit: "Kanal" },
+    bedrooms: 5,
+    bathrooms: 5,
+    parking: true,
+    furnished: "unfurnished",
+    amenities: ["Parking", "Security", "Garden", "Servant Quarter", "CCTV", "Electricity Backup"],
+    images: [
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200",
+      "https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=1200",
+    ],
+    nearbyPlaces: nearby("Army Public School Askari 10", "CMH Lahore", "Askari 10 Market"),
+    agent: agentIds[0],
+    isVerified: true,
+    verificationStatus: "verified",
+    availabilityStatus: "available",
+  },
+  {
+    title: "3 Bed House in Wapda Town Block J1",
+    description:
+      "A well-planned 5 marla house in Wapda Town with 3 bedrooms, a rooftop terrace, and easy access to Multan Road.",
+    purpose: "buy",
+    propertyType: "house",
+    price: 12500000,
+    location: { area: "Wapda Town", address: "Block J1", city: "Lahore" },
+    coordinates: { lat: 31.4301, lng: 74.2578 },
+    area: { value: 5, unit: "Marla" },
+    bedrooms: 3,
+    bathrooms: 3,
+    parking: true,
+    furnished: "unfurnished",
+    amenities: ["Parking", "Security", "Electricity Backup"],
+    images: [
+      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200",
+      "https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=1200",
+    ],
+    nearbyPlaces: nearby("The City School Wapda", "Chughtai Lab Wapda", "Wapda Town Market"),
+    agent: agentIds[2],
+    isVerified: false,
+    verificationStatus: "pending",
+    availabilityStatus: "pending_confirmation",
+  },
+  {
+    title: "4 Bed House in DHA Phase 5 with Basement",
+    description:
+      "A contemporary 1 kanal house in DHA Phase 5 featuring a basement, home theater, and rooftop lounge — built for modern living.",
+    purpose: "buy",
+    propertyType: "house",
+    price: 21000000,
+    location: { area: "DHA Lahore", address: "Phase 5, Block J", city: "Lahore" },
+    coordinates: { lat: 31.4767, lng: 74.4046 },
+    area: { value: 1, unit: "Kanal" },
+    bedrooms: 4,
+    bathrooms: 5,
+    parking: true,
+    furnished: "semi-furnished",
+    amenities: ["Parking", "Security", "Garden", "CCTV", "Electricity Backup", "Elevator"],
+    images: [
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200",
+      "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=1200",
+      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200",
+    ],
+    nearbyPlaces: nearby("Lahore Grammar DHA", "Hameed Latif DHA", "DHA Phase 5 Market"),
+    agent: agentIds[0],
+    isVerified: true,
+    verificationStatus: "verified",
+    availabilityStatus: "confirmed_today",
+    availabilityConfirmedAt: new Date(),
+  },
+  {
+    title: "1 Bed Studio Apartment in Johar Town",
+    description:
+      "A compact and efficient studio apartment near Doctors Hospital Johar Town — great for students or single professionals.",
+    purpose: "rent",
+    propertyType: "apartment",
+    price: 45000,
+    rentFrequency: "monthly",
+    location: { area: "Johar Town", address: "Block H2", city: "Lahore" },
+    coordinates: { lat: 31.4649, lng: 74.2665 },
+    area: { value: 650, unit: "Sq.Ft" },
+    bedrooms: 1,
+    bathrooms: 1,
+    parking: false,
+    furnished: "furnished",
+    amenities: ["Security", "Electricity Backup"],
+    images: [
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1200",
+      "https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=1200",
+    ],
+    nearbyPlaces: nearby("Superior College", "Doctors Hospital Johar", "Faisal Town Market"),
+    agent: agentIds[3],
+    isVerified: true,
+    verificationStatus: "verified",
+    availabilityStatus: "available",
+  },
+  {
+    title: "8 Marla Commercial Plot on Ferozepur Road",
+    description:
+      "A corner commercial plot on Ferozepur Road suitable for a plaza or showroom, with excellent road frontage.",
+    purpose: "buy",
+    propertyType: "commercial",
+    price: 45000000,
+    location: { area: "Garden Town", address: "Ferozepur Road", city: "Lahore" },
+    coordinates: { lat: 31.4989, lng: 74.3358 },
+    area: { value: 8, unit: "Marla" },
+    bedrooms: 0,
+    bathrooms: 0,
+    parking: true,
+    furnished: "unfurnished",
+    amenities: ["Parking", "Electricity Backup"],
+    images: [
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200",
+      "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=1200",
+    ],
+    nearbyPlaces: nearby("N/A", "Garden Town Hospital", "Garden Town Market"),
+    agent: agentIds[2],
+    isVerified: true,
+    verificationStatus: "verified",
+    availabilityStatus: "available",
+  },
+  {
+    title: "6 Bed House in Cantt with Servant Quarters",
+    description:
+      "An elegant 2 kanal house in Lahore Cantt with a swimming pool, servant quarters, and mature landscaping — a rare find near GOR.",
+    purpose: "buy",
+    propertyType: "house",
+    price: 65000000,
+    location: { area: "Cantt", address: "Race Course Road area", city: "Lahore" },
+    coordinates: { lat: 31.5364, lng: 74.3453 },
+    area: { value: 2, unit: "Kanal" },
+    bedrooms: 6,
+    bathrooms: 7,
+    parking: true,
+    furnished: "unfurnished",
+    amenities: ["Parking", "Security", "Garden", "Servant Quarter", "CCTV", "Electricity Backup"],
+    images: [
+      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1200",
+      "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=1200",
+    ],
+    nearbyPlaces: nearby("Convent of Jesus and Mary", "CMH Lahore", "MM Alam Road Market"),
+    agent: agentIds[0],
+    isVerified: true,
+    verificationStatus: "verified",
+    availabilityStatus: "available",
+  },
+  {
+    title: "3 Bed Apartment in Bahria Town Sector B",
+    description:
+      "A secure, well-ventilated 3-bedroom apartment in Bahria Town's Sector B community, close to Bahria Grand Mosque.",
+    purpose: "rent",
+    propertyType: "apartment",
+    price: 75000,
+    rentFrequency: "monthly",
+    location: { area: "Bahria Town Lahore", address: "Sector B", city: "Lahore" },
+    coordinates: { lat: 31.3796, lng: 74.1858 },
+    area: { value: 1600, unit: "Sq.Ft" },
+    bedrooms: 3,
+    bathrooms: 3,
+    parking: true,
+    furnished: "unfurnished",
+    amenities: ["Parking", "Security", "Elevator", "CCTV"],
+    images: [
+      "https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=1200",
+      "https://images.unsplash.com/photo-1524230572899-a752b3835840?w=1200",
+    ],
+    nearbyPlaces: nearby("Bahria Town School Sector B", "Bahria International Hospital", "Sector B Market"),
+    agent: agentIds[2],
+    isVerified: false,
+    verificationStatus: "pending",
+    availabilityStatus: "pending_confirmation",
+  },
+  {
+    title: "5 Marla House in Model Town Extension",
+    description:
+      "A compact and efficiently designed 5 marla house in Model Town Extension, ready to move in with modern fittings.",
+    purpose: "buy",
+    propertyType: "house",
+    price: 14800000,
+    location: { area: "Model Town", address: "Model Town Extension", city: "Lahore" },
+    coordinates: { lat: 31.4726, lng: 74.3184 },
+    area: { value: 5, unit: "Marla" },
+    bedrooms: 3,
+    bathrooms: 4,
+    parking: true,
+    furnished: "unfurnished",
+    amenities: ["Parking", "Security", "Electricity Backup", "CCTV"],
+    images: [
+      "https://images.unsplash.com/photo-1605146769289-440113cc3d00?w=1200",
+      "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?w=1200",
+    ],
+    nearbyPlaces: nearby("Model Town Model High School", "Model Town Hospital", "Model Town Market"),
+    agent: agentIds[3],
+    isVerified: true,
+    verificationStatus: "verified",
+    availabilityStatus: "confirmed_today",
+    availabilityConfirmedAt: new Date(),
+  },
+  {
+    title: "2 Kanal Farmhouse Plot near Bahria Town",
+    description:
+      "A large 2 kanal plot suited for a farmhouse-style residence, located just outside Bahria Town Lahore with quick access to the ring road.",
+    purpose: "buy",
+    propertyType: "plot",
+    price: 15500000,
+    location: { area: "Bahria Town Lahore", address: "Overseas Block", city: "Lahore" },
+    coordinates: { lat: 31.3612, lng: 74.1699 },
+    area: { value: 2, unit: "Kanal" },
+    bedrooms: 0,
+    bathrooms: 0,
+    parking: false,
+    furnished: "unfurnished",
+    amenities: ["Security"],
+    images: [
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200",
+      "https://images.unsplash.com/photo-1464082354059-27db6ce50048?w=1200",
+    ],
+    nearbyPlaces: nearby("Bahria Town School", "Bahria International Hospital", "Overseas Block Market"),
+    agent: agentIds[2],
+    isVerified: true,
+    verificationStatus: "verified",
+    availabilityStatus: "available",
+  },
+];
+
+const run = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/lahore_estate");
+    console.log("Connected to MongoDB for seeding...");
+
+    await Promise.all([User.deleteMany(), Agent.deleteMany(), Property.deleteMany()]);
+    console.log("Cleared existing data.");
+
+    const createdAgents = await Agent.insertMany(agents);
+    console.log(`Inserted ${createdAgents.length} agents.`);
+
+    const agentIds = createdAgents.map((a) => a._id);
+    const createdProperties = await Property.insertMany(propertiesSeed(agentIds));
+    console.log(`Inserted ${createdProperties.length} properties.`);
+
+    const adminEmail = process.env.SEED_ADMIN_EMAIL || "admin@lahoreestate.pk";
+    const adminPassword = process.env.SEED_ADMIN_PASSWORD || "ChangeMe123!";
+    await User.create({
+      name: "Platform Admin",
+      email: adminEmail,
+      password: adminPassword,
+      role: "admin",
+    });
+    console.log(`Created admin user: ${adminEmail} / ${adminPassword}`);
+
+    console.log("Seeding complete.");
+    process.exit(0);
+  } catch (err) {
+    console.error("Seeding failed:", err);
+    process.exit(1);
+  }
+};
+
+run();

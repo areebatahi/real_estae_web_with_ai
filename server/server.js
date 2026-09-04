@@ -19,10 +19,17 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
-if (process.env.NODE_ENV !== "test") app.use(morgan("dev"));
+
+if (process.env.NODE_ENV !== "test") {
+  app.use(morgan("dev"));
+}
 
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", service: "lahore-estate-api", time: new Date().toISOString() });
+  res.json({
+    status: "ok",
+    service: "lahore-estate-api",
+    time: new Date().toISOString()
+  });
 });
 
 app.use("/api/auth", authRoutes);
@@ -35,15 +42,14 @@ app.use("/api/ai", aiRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
-
 const start = async () => {
   if (process.env.MONGO_URI) {
     await connectDB();
   } else {
-    console.warn("No MONGO_URI set — starting without a DB connection. Set MONGO_URI in .env.");
+    console.warn(
+      "No MONGO_URI set — starting without a DB connection. Set MONGO_URI in .env."
+    );
   }
-  app.listen(PORT, () => console.log(`Lahore Estate API running on port ${PORT}`));
 };
 
 start();

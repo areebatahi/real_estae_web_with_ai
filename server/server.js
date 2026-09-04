@@ -52,6 +52,6 @@ const start = async () => {
   }
 };
 
-start();
+await start();
 
 export default app;

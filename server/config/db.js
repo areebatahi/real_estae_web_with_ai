@@ -28,7 +28,7 @@ export const connectDB = async () => {
 
   try {
     cached.conn = await cached.promise;
-    console.log(`MongoDB connected: ${cached.conn.connection.host}`);
+    console.log(`MongoDB connected: ${cached.conn.connection.host}` );
     return cached.conn;
   } catch (error) {
     cached.promise = null;

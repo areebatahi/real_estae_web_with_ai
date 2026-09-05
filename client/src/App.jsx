@@ -53,7 +53,7 @@ function AdminLayout({ children }) {
 export default function App() {
   return (
     <>
-      <ScrollToTop />
+      {/* <ScrollToTop /> */} 
       <Routes>
         <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
         <Route path="/properties" element={<PublicLayout><PropertySearch /></PublicLayout>} />
